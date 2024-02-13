@@ -94,7 +94,7 @@ def perform_causal_impact_analysis(data, event_date_str, pre_days, post_days, se
     try:
         ci = CausalImpact(analysis_data, pre_period, post_period)
             # Display the summary of the analysis
-        ci.run()
+        #ci.run()
         print(ci.summary())
         print(ci.summary(output='report'))
 
@@ -530,7 +530,7 @@ post_period = pd.to_datetime(post_period)
 
 # Initialize and run the CausalImpact analysis
 ci = CausalImpact(data, pre_period, post_period)
-ci.run()
+#ci.run()
 
 # Now access the summary and plot
 print(ci.summary())
