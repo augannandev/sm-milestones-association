@@ -493,5 +493,34 @@ if 'event_date' in locals() or 'event_date' in globals():
 
 
 ################################################################
+import pandas as pd
+import numpy as np
+from causalimpact import CausalImpact
 
+# Simplifying the data generation for CausalImpact analysis
+np.random.seed(42)  # For reproducibility
+
+# Generate a simple time series for pre and post periods with a clear change point
+n_points = 100
+change_point = 70
+pre_change = np.random.normal(1, 0.5, change_point)
+post_change = np.random.normal(1.5, 0.5, n_points - change_point) + 1  # Adding an effect
+
+# Combine into a single series
+data_series = np.concatenate([pre_change, post_change])
+
+# Create dates for the index
+dates = pd.date_range(start='2022-01-01', periods=n_points, freq='D')
+
+# Create a DataFrame
+data = pd.DataFrame(data_series, index=dates, columns=['y'])
+
+# Define pre and post periods for the analysis
+pre_period = [str(dates[0].date()), str(dates[change_point-1].date())]
+post_period = [str(dates[change_point].date()), str(dates[-1].date())]
+
+# Perform CausalImpact analysis
+ci = CausalImpact(data, pre_period, post_period)
+
+st.write(ci.summary())
 
