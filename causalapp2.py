@@ -530,7 +530,7 @@ post_period = pd.to_datetime(post_period)
 
 # Initialize and run the CausalImpact analysis
 ci = CausalImpact(data, pre_period, post_period)
-#ci.run()
+ci.run()
 
 # Now access the summary and plot
 print(ci.summary())
