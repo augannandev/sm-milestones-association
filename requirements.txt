@@ -1,6 +1,6 @@
 altair
 streamlit
-pandas==0.22
+pandas==1.0.5
 causalimpact
 numpy
 plotly
