@@ -261,7 +261,7 @@ else:
     event_column = 'Event and related notes' if news_type == "Public Health Agencies" else 'Lead (title)'
 
     st.markdown("📅  **Select an Event for Analysis**")
-    selected_event = st.selectbox('', filtered_data[event_column].unique())
+    selected_event = st.selectbox('Select an Event:', filtered_data[event_column].unique(), label_visibility='collapsed')
 
 
     #selected_event = st.selectbox('Select an Event for Analysis', filtered_data[event_column].unique())
