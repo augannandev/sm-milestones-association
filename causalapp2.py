@@ -522,6 +522,6 @@ post_period = [str(dates[change_point].date()), str(dates[-1].date())]
 
 # Perform CausalImpact analysis
 ci = CausalImpact(data, pre_period, post_period)
-c.run()
+ci.run()
 st.write(ci.summary())
 
