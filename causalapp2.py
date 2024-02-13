@@ -521,8 +521,8 @@ data.index = pd.to_datetime(data.index)
 
 # Ensure 'pre_period' and 'post_period' are defined in terms of the DataFrame's index
 # Example: Assuming the DataFrame's index is already in datetime format
-pre_period = ['2022-01-01', '2022-03-10']  # Start and end dates as strings
-post_period = ['2022-03-11', '2022-04-10'] 
+pre_period = [pd.Timestamp('2022-01-01'), pd.Timestamp('2022-03-10')]
+post_period = [pd.Timestamp('2022-03-11'), pd.Timestamp('2022-04-10')]
 
 # Convert periods to datetime to match the DataFrame's datetime index
 pre_period = pd.to_datetime(pre_period)
