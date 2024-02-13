@@ -77,13 +77,15 @@ def perform_causal_impact_analysis(data, event_date_str, pre_days, post_days, se
         (data_agg['Date'] <= post_period_end)
     ].set_index('Date').asfreq('D').fillna(method='ffill')
 
-    st.write("Analysis Period Data:", analysis_period_data)
+    #st.write("Analysis Period Data:", analysis_period_data)
 
     if analysis_period_data.empty or analysis_period_data[selected_data_type].isnull().all():
         return None, empty_milestones_df, "Not enough data for analysis in the selected period."
 
     # Prepare the data for CausalImpact
     analysis_data = analysis_period_data[selected_data_type].to_frame('y')
+
+    st.write("Analysis Data for CausalImpact:", analysis_data)
 
     # Define the pre and post intervention periods for CausalImpact
     pre_period = [str(pre_period_start.date()), str((event_date - pd.Timedelta(days=1)).date())]
@@ -490,30 +492,5 @@ if 'event_date' in locals() or 'event_date' in globals():
 
 
 ################################################################
-import pandas as pd
-import numpy as np
-from causalimpact import CausalImpact
 
-# Generating synthetic data
-np.random.seed(22)
-n_points = 100
-pre_period = [0, 70]
-post_period = [71, n_points - 1]
-
-# Creating a time series with a change point
-data = np.random.randn(n_points).cumsum()
-intervention_effect = np.random.normal(0.2, 0.05, n_points - post_period[0])
-data[post_period[0]:] += intervention_effect
-
-# Formatting the data for CausalImpact
-dates = pd.date_range(start="2021-01-01", periods=n_points)
-data = pd.DataFrame({'y': data, 'x': np.random.randn(n_points)}, index=dates)
-
-# Running CausalImpact
-ci = CausalImpact(data, pre_period, post_period, model_args={'niter': 5000})
-ci.plot()
-
-# Returning the summary of the analysis
-summary = ci.summary()
-summary
 
