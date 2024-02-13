@@ -491,35 +491,29 @@ if 'event_date' in locals() or 'event_date' in globals():
 
 ################################################################
 import pandas as pd
-import matplotlib.pyplot as plt # required later
+import numpy as np
 from causalimpact import CausalImpact
 
-import streamlit as st
+# Generating synthetic data
+np.random.seed(22)
+n_points = 100
+pre_period = [0, 70]
+post_period = [71, n_points - 1]
 
-df = pd.DataFrame({'date': ['2021-01-01', '2021-01-02', '2021-01-03', '2021-01-04', '2021-01-05', '2021-01-06'],
+# Creating a time series with a change point
+data = np.random.randn(n_points).cumsum()
+intervention_effect = np.random.normal(0.2, 0.05, n_points - post_period[0])
+data[post_period[0]:] += intervention_effect
 
-                   'value': [1539, 1696, 1427, 1341, 1426, 1471]})
+# Formatting the data for CausalImpact
+dates = pd.date_range(start="2021-01-01", periods=n_points)
+data = pd.DataFrame({'y': data, 'x': np.random.randn(n_points)}, index=dates)
 
-@st.cache_data
-def get_pre_post(data, change):  
-    pre_start = min(data.index)
-    pre_end = int(data[data['date'] == change].index.values)
-    post_start = pre_end + 1
-    post_end = max(data.index)
-    pre_period = [pre_start, pre_end]
-    post_period = [post_start, post_end]
-
-    return pre_period, post_period
-
-change = '2021-01-05'
-
-pre_period, post_period = get_pre_post(df, change)
-
-ci = CausalImpact(df.drop(['date'], axis=1), pre_period, post_period)
-
+# Running CausalImpact
+ci = CausalImpact(data, pre_period, post_period, model_args={'niter': 5000})
 ci.plot()
 
-fig = plt.gcf() # to get current figure
-ax = plt.gca() # to get current axes
+# Returning the summary of the analysis
+summary = ci.summary()
+summary
 
-st.pyplot(fig)
