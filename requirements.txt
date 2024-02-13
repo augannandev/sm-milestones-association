@@ -4,3 +4,5 @@ causalimpact==0.2.6
 numpy
 plotly==5.11.0
 matplotlib
+altair>=4.0.0
+
