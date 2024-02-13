@@ -500,7 +500,7 @@ df = pd.DataFrame({'date': ['2021-01-01', '2021-01-02', '2021-01-03', '2021-01-0
 
                    'value': [1539, 1696, 1427, 1341, 1426, 1471]})
 
-@st.experimental_memo
+@st.cache_data
 def get_pre_post(data, change):  
     pre_start = min(data.index)
     pre_end = int(data[data['date'] == change].index.values)
@@ -515,7 +515,7 @@ change = '2021-01-05'
 
 pre_period, post_period = get_pre_post(df, change)
 
-ci = CausalImpact(df.drop(['date'], axis=1), pre_period, post_period, prior_level_sd=None)
+ci = CausalImpact(df.drop(['date'], axis=1), pre_period, post_period)
 
 ci.plot()
 
