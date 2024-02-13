@@ -25,9 +25,6 @@ def get_unique_pov(data, column):
     return list(unique_vals)
 
 
-
-
-
 def perform_causal_impact_analysis(data, event_date_str, pre_days, post_days, selected_data_type):
     """
     Perform a Causal Impact analysis on provided data.
@@ -73,12 +70,14 @@ def perform_causal_impact_analysis(data, event_date_str, pre_days, post_days, se
         'mmr_Negative': 'mean',
         'mmr_Count': 'mean',
     }).reset_index()
-
+    st.write("Aggregated Data:", data_agg)
     # Extract the data for the analysis period
     analysis_period_data = data_agg[
         (data_agg['Date'] >= pre_period_start) & 
         (data_agg['Date'] <= post_period_end)
     ].set_index('Date').asfreq('D').fillna(method='ffill')
+
+    st.write("Analysis Period Data:", analysis_period_data)
 
     if analysis_period_data.empty or analysis_period_data[selected_data_type].isnull().all():
         return None, empty_milestones_df, "Not enough data for analysis in the selected period."
