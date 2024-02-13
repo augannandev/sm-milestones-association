@@ -1,8 +1,9 @@
-streamlit==1.13.0
-pandas==1.5.0
-causalimpact==0.2.6
+altair
+streamlit
+pandas
+causalimpact
 numpy
-plotly==5.11.0
+plotly
 matplotlib
-altair>=4.0.0
+
 
