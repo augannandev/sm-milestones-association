@@ -7,6 +7,8 @@ import warnings
 import io
 import contextlib
 import re
+import plotly.express as px
+
 warnings.filterwarnings('ignore')
 
 st.set_page_config(layout="wide")
