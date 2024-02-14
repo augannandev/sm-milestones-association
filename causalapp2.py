@@ -338,81 +338,81 @@ else:
                         st.success("✅ Analysis Completed Successfully")
             
 
-            st.header("📊🔍 Analysis Results")
-            # Display Causal Impact Analysis Report
-            st.write("📊 Causal Impact Analysis Result:")
-            summary_str = ci.summary()
-            #st.text(summary_str)
-            #summary_str = ci.summary()
-                    # Extract and display p-value and posterior probability
-            p_value, posterior_prob = extract_p_value_and_posterior_prob(summary_str)
-            if p_value is not None:
-                display_significance2(p_value)
-            else:
-                st.write("P-value not available")
-            # if p_value is not None:
-            #     display_significance(p_value)
-            # else:
-            #     st.write("P-value not available.")
-
-
-            import pandas as pd
-            import re
-
-            # Assume `summary_str` is your CausalImpact summary string
-
-            # Parse the summary string for the actual and predicted averages
-            actual_avg = re.search(r"Actual\s+([\d\.]+)", summary_str).group(1)
-            predicted_avg = re.search(r"Prediction \(s\.d\.\)\s+([\d\.]+)", summary_str).group(1)
-            p_value = re.search(r"Posterior tail-area probability p:\s+([\d\.]+)", summary_str).group(1)
-            causal_effect_prob = re.search(r"Posterior prob\. of a causal effect:\s+([\d\.]+)%", summary_str).group(1)
-
-            # Make a decision based on p-value
-            statistical_decision = "Causal effect is Significant" if float(p_value) <= 0.05 else "Not Significant"
-
-            # Create a DataFrame
-            df1 = pd.DataFrame({
-                "Date": event_date,  # Example date, replace with actual date
-                "Milestone": selected_event,  # Example event, replace with actual event name
-                "Actual Average": [actual_avg],
-                "Predicted Average": [predicted_avg],
-                "Statistical Decision": [statistical_decision]
-            })
-
-            print(df1)
+                        st.header("📊🔍 Analysis Results")
+                        # Display Causal Impact Analysis Report
+                        st.write("📊 Causal Impact Analysis Result:")
+                        summary_str = ci.summary()
+                        #st.text(summary_str)
+                        #summary_str = ci.summary()
+                                # Extract and display p-value and posterior probability
+                        p_value, posterior_prob = extract_p_value_and_posterior_prob(summary_str)
+                        if p_value is not None:
+                            display_significance2(p_value)
+                        else:
+                            st.write("P-value not available")
+                        # if p_value is not None:
+                        #     display_significance(p_value)
+                        # else:
+                        #     st.write("P-value not available.")
             
-            html1 = df1.to_html(escape=False, index=False)
-
-            # Display the HTML in Streamlit
-            st.markdown(html1, unsafe_allow_html=True)  
-            st.markdown('<sub>Actual Average: actual average of sentiment counts for post-intervention period.</sub>'
-                '<br><sub>Predicted Average: predicted average of sentiment counts if no milestone(s) occurred.</sub>', unsafe_allow_html=True)
-
-
-
-            st.write("")
-            st.header("🔖 Post Intervention Milestones")
-        # Optional: Display Post Intervention Milestones
-            st.write("Post Intervention Milestones:")
-            post_intervention_milestones = post_intervention_milestones.replace([0, '0', np.nan], 'N/A')
-
-    # Now, display the DataFrame without truncation
-    # Using st.dataframe to display as an interactive table
-            #st.dataframe(post_intervention_milestones)
-
-            post_intervention_milestones = post_intervention_milestones.rename(columns={
-                'Event and related notes': 'Public Health Agency Vax News',
-                'Brief description': 'Public Media Vax News Articles'
-            })
-
-            # Convert the renamed DataFrame to HTML
-            html = post_intervention_milestones.to_html(escape=False, index=False)
-
-            # Display the HTML in Streamlit
-            st.markdown(html, unsafe_allow_html=True)        
             
-        #  html = post_intervention_milestones.to_html(escape=False, index=False)
-        #  st.markdown(html, unsafe_allow_html=True)
+                        import pandas as pd
+                        import re
+            
+                        # Assume `summary_str` is your CausalImpact summary string
+            
+                        # Parse the summary string for the actual and predicted averages
+                        actual_avg = re.search(r"Actual\s+([\d\.]+)", summary_str).group(1)
+                        predicted_avg = re.search(r"Prediction \(s\.d\.\)\s+([\d\.]+)", summary_str).group(1)
+                        p_value = re.search(r"Posterior tail-area probability p:\s+([\d\.]+)", summary_str).group(1)
+                        causal_effect_prob = re.search(r"Posterior prob\. of a causal effect:\s+([\d\.]+)%", summary_str).group(1)
+            
+                        # Make a decision based on p-value
+                        statistical_decision = "Causal effect is Significant" if float(p_value) <= 0.05 else "Not Significant"
+            
+                        # Create a DataFrame
+                        df1 = pd.DataFrame({
+                            "Date": event_date,  # Example date, replace with actual date
+                            "Milestone": selected_event,  # Example event, replace with actual event name
+                            "Actual Average": [actual_avg],
+                            "Predicted Average": [predicted_avg],
+                            "Statistical Decision": [statistical_decision]
+                        })
+            
+                        print(df1)
+                        
+                        html1 = df1.to_html(escape=False, index=False)
+            
+                        # Display the HTML in Streamlit
+                        st.markdown(html1, unsafe_allow_html=True)  
+                        st.markdown('<sub>Actual Average: actual average of sentiment counts for post-intervention period.</sub>'
+                            '<br><sub>Predicted Average: predicted average of sentiment counts if no milestone(s) occurred.</sub>', unsafe_allow_html=True)
+            
+            
+            
+                        st.write("")
+                        st.header("🔖 Post Intervention Milestones")
+                    # Optional: Display Post Intervention Milestones
+                        st.write("Post Intervention Milestones:")
+                        post_intervention_milestones = post_intervention_milestones.replace([0, '0', np.nan], 'N/A')
+            
+                # Now, display the DataFrame without truncation
+                # Using st.dataframe to display as an interactive table
+                        #st.dataframe(post_intervention_milestones)
+            
+                        post_intervention_milestones = post_intervention_milestones.rename(columns={
+                            'Event and related notes': 'Public Health Agency Vax News',
+                            'Brief description': 'Public Media Vax News Articles'
+                        })
+            
+                        # Convert the renamed DataFrame to HTML
+                        html = post_intervention_milestones.to_html(escape=False, index=False)
+            
+                        # Display the HTML in Streamlit
+                        st.markdown(html, unsafe_allow_html=True)        
+                        
+                    #  html = post_intervention_milestones.to_html(escape=False, index=False)
+                    #  st.markdown(html, unsafe_allow_html=True)
 
 import plotly.graph_objects as go
 import pandas as pd
