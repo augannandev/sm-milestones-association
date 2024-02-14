@@ -305,205 +305,193 @@ else:
     # Access the selected data type key for analysis
     
     if selected_event:
-
-        #selected_data_type = st.selectbox('Select Social Media Data Type for Analysis', social_media_data_types)
         st.markdown("**📈 Select Social Media Data Type for Analysis**")
-        selected_data_type = st.selectbox('', social_media_data_types, format_func=lambda x: x[1])
-        selected_data_type = selected_data_type[0]
-        # Retrieve the event date
+        selected_data_type = st.selectbox('Select Data Type', social_media_data_types, format_func=lambda x: x[1], label_visibility='collapsed')
+        selected_data_type = selected_data_type[0]  # Assuming selected_data_type is a tuple
         event_date = pd.to_datetime(filtered_data[filtered_data[event_column] == selected_event]['Date'].iloc[0])
 
         pre_days = st.sidebar.slider('⏮️ Select number of Pre-Event Days', min_value=0, max_value=30, value=7)
         post_days = st.sidebar.slider('⏭️ Select number of Post-Event Days', min_value=0, max_value=30, value=7)
 
-        
-
         earliest_date = data['Date'].min()
         latest_date = data['Date'].max()
 
-        if event_date - pd.Timedelta(days=pre_days) < earliest_date:
-            st.error("⚠️ Not enough pre-event data available for the selected event date. Please select a different event or reduce the number of pre-event days.")
-        elif event_date + pd.Timedelta(days=post_days) > latest_date:
-            st.error("⚠️ Not enough post-event data available for the selected event date. Please select a different event or reduce the number of post-event days.")
-        else:
-            st.write(f"Performing analysis for event on {event_date}, with {pre_days} pre days and {post_days} post days")
-
-        ci, post_intervention_milestones, error_message = perform_causal_impact_analysis(data, event_date.strftime('%Y-%m-%d'), pre_days, post_days, selected_data_type)
-
-        if error_message:
-            st.error(f"Error: {error_message}")
-        else:
-            # Proceed with displaying the analysis results
-            st.success("✅ Analysis Completed Successfully")
-            
-
-            st.header("📊🔍 Analysis Results")
-            # Display Causal Impact Analysis Report
-            st.write("📊 Causal Impact Analysis Result:")
-            summary_str = ci.summary()
-            #st.text(summary_str)
-            #summary_str = ci.summary()
-                    # Extract and display p-value and posterior probability
-            p_value, posterior_prob = extract_p_value_and_posterior_prob(summary_str)
-            if p_value is not None:
-                display_significance2(p_value)
+        # Button to trigger the analysis
+        if st.button('Run Causal Impact Analysis'):
+            if event_date - pd.Timedelta(days=pre_days) < earliest_date:
+                st.error("⚠️ Not enough pre-event data available for the selected event date. Please select a different event or reduce the number of pre-event days.")
+            elif event_date + pd.Timedelta(days=post_days) > latest_date:
+                st.error("⚠️ Not enough post-event data available for the selected event date. Please select a different event or reduce the number of post-event days.")
             else:
-                st.write("P-value not available")
-            # if p_value is not None:
-            #     display_significance(p_value)
-            # else:
-            #     st.write("P-value not available.")
+                with st.spinner('Performing causal impact analysis... Please wait'):
+                    ci, post_intervention_milestones, error_message = perform_causal_impact_analysis(data, event_date.strftime('%Y-%m-%d'), pre_days, post_days, selected_data_type)
 
-
-            import pandas as pd
-            import re
-
-            # Assume `summary_str` is your CausalImpact summary string
-
-            # Parse the summary string for the actual and predicted averages
-            actual_avg = re.search(r"Actual\s+([\d\.]+)", summary_str).group(1)
-            predicted_avg = re.search(r"Prediction \(s\.d\.\)\s+([\d\.]+)", summary_str).group(1)
-            p_value = re.search(r"Posterior tail-area probability p:\s+([\d\.]+)", summary_str).group(1)
-            causal_effect_prob = re.search(r"Posterior prob\. of a causal effect:\s+([\d\.]+)%", summary_str).group(1)
-
-            # Make a decision based on p-value
-            statistical_decision = "Causal effect is Significant" if float(p_value) <= 0.05 else "Not Significant"
-
-            # Create a DataFrame
-            df1 = pd.DataFrame({
-                "Date": event_date,  # Example date, replace with actual date
-                "Milestone": selected_event,  # Example event, replace with actual event name
-                "Actual Average": [actual_avg],
-                "Predicted Average": [predicted_avg],
-                "Statistical Decision": [statistical_decision]
-            })
-
-            print(df1)
+                    if error_message:
+                        st.error(f"Error: {error_message}")
+                    else:
+                        st.success("✅ Analysis Completed Successfully")
             
-            html1 = df1.to_html(escape=False, index=False)
 
-            # Display the HTML in Streamlit
-            st.markdown(html1, unsafe_allow_html=True)  
-            st.markdown('<sub>Actual Average: actual average of sentiment counts for post-intervention period.</sub>'
-                '<br><sub>Predicted Average: predicted average of sentiment counts if no milestone(s) occurred.</sub>', unsafe_allow_html=True)
+                        st.header("📊🔍 Analysis Results")
+                        # Display Causal Impact Analysis Report
+                        st.write("📊 Causal Impact Analysis Result:")
+                        summary_str = ci.summary()
+                        #st.text(summary_str)
+                        #summary_str = ci.summary()
+                                # Extract and display p-value and posterior probability
+                        p_value, posterior_prob = extract_p_value_and_posterior_prob(summary_str)
+                        if p_value is not None:
+                            display_significance2(p_value)
+                        else:
+                            st.write("P-value not available")
+                        # if p_value is not None:
+                        #     display_significance(p_value)
+                        # else:
+                        #     st.write("P-value not available.")
+
+
+                        import pandas as pd
+                        import re
+
+                        # Assume `summary_str` is your CausalImpact summary string
+
+                        # Parse the summary string for the actual and predicted averages
+                        actual_avg = re.search(r"Actual\s+([\d\.]+)", summary_str).group(1)
+                        predicted_avg = re.search(r"Prediction \(s\.d\.\)\s+([\d\.]+)", summary_str).group(1)
+                        p_value = re.search(r"Posterior tail-area probability p:\s+([\d\.]+)", summary_str).group(1)
+                        causal_effect_prob = re.search(r"Posterior prob\. of a causal effect:\s+([\d\.]+)%", summary_str).group(1)
+
+                        # Make a decision based on p-value
+                        statistical_decision = "Causal effect is Significant" if float(p_value) <= 0.05 else "Not Significant"
+
+                        # Create a DataFrame
+                        df1 = pd.DataFrame({
+                            "Date": event_date,  # Example date, replace with actual date
+                            "Milestone": selected_event,  # Example event, replace with actual event name
+                            "Actual Average": [actual_avg],
+                            "Predicted Average": [predicted_avg],
+                            "Statistical Decision": [statistical_decision]
+                        })
+
+                        print(df1)
+                        
+                        html1 = df1.to_html(escape=False, index=False)
+
+                        # Display the HTML in Streamlit
+                        st.markdown(html1, unsafe_allow_html=True)  
+                        st.markdown('<sub>Actual Average: actual average of sentiment counts for post-intervention period.</sub>'
+                            '<br><sub>Predicted Average: predicted average of sentiment counts if no milestone(s) occurred.</sub>', unsafe_allow_html=True)
 
 
 
-            st.write("")
-            st.header("🔖 Post Intervention Milestones")
-        # Optional: Display Post Intervention Milestones
-            st.write("Post Intervention Milestones:")
-            post_intervention_milestones = post_intervention_milestones.replace([0, '0', np.nan], 'N/A')
+                        st.write("")
+                        st.header("🔖 Post Intervention Milestones")
+                    # Optional: Display Post Intervention Milestones
+                        st.write("Post Intervention Milestones:")
+                        post_intervention_milestones = post_intervention_milestones.replace([0, '0', np.nan], 'N/A')
 
-    # Now, display the DataFrame without truncation
-    # Using st.dataframe to display as an interactive table
-            #st.dataframe(post_intervention_milestones)
+                # Now, display the DataFrame without truncation
+                # Using st.dataframe to display as an interactive table
+                        #st.dataframe(post_intervention_milestones)
 
-            post_intervention_milestones = post_intervention_milestones.rename(columns={
-                'Event and related notes': 'Public Health Agency Vax News',
-                'Brief description': 'Public Media Vax News Articles'
-            })
+                        post_intervention_milestones = post_intervention_milestones.rename(columns={
+                            'Event and related notes': 'Public Health Agency Vax News',
+                            'Brief description': 'Public Media Vax News Articles'
+                        })
 
-            # Convert the renamed DataFrame to HTML
-            html = post_intervention_milestones.to_html(escape=False, index=False)
+                        # Convert the renamed DataFrame to HTML
+                        html = post_intervention_milestones.to_html(escape=False, index=False)
 
-            # Display the HTML in Streamlit
-            st.markdown(html, unsafe_allow_html=True)        
-            
-        #  html = post_intervention_milestones.to_html(escape=False, index=False)
-        #  st.markdown(html, unsafe_allow_html=True)
-       
+                        # Display the HTML in Streamlit
+                        st.markdown(html, unsafe_allow_html=True)        
                         
                     #  html = post_intervention_milestones.to_html(escape=False, index=False)
                     #  st.markdown(html, unsafe_allow_html=True)
 
-import plotly.graph_objects as go
-import pandas as pd
-import plotly.express as px
-
-# Assuming 'data' and 'post_intervention_milestones' are already loaded
-# 'selected_data_type', 'selected_event', and 'event_date' are set based on user selection
-if 'event_date' in locals() or 'event_date' in globals():
-    start_date = event_date - pd.Timedelta(days=15)
-    end_date = event_date + pd.Timedelta(days=15)
-    filtered_data = data[(data['Date'] >= start_date) & (data['Date'] <= end_date)]
-
-    if filtered_data.empty:
-        st.write("No data available for the selected period.")
-    else:
-            # Create the plot
-        y_range = [filtered_data[selected_data_type].min(), filtered_data[selected_data_type].max()]
-
-            # Create the plot
-        fig = px.line(filtered_data, x='Date', y=selected_data_type, title=f'Trend for {selected_data_type} Sentiments Around the Milestone',
-                        labels={selected_data_type: 'Value', 'Date': 'Date'}, markers=True)
-
-            # Add a vertical line for the selected event with a dummy trace for the legend
-        fig.add_trace(go.Scatter(x=[event_date, event_date], y=y_range, mode="lines", name="Selected Milestone",
-                                    line=dict(color="red", width=2, dash="dash")))
-
-            # Add an annotation for the selected event
-    # Add an annotation for the selected event with increased font size and italicized text
-        fig.add_annotation(
-            x=event_date, 
-            y=filtered_data[filtered_data['Date'] == event_date][selected_data_type].max(),
-            text=f"<i>{selected_event}</i>",  # Italicize text with <i> HTML tag
-            showarrow=True, 
-            arrowhead=5,
-            arrowsize=2,
-            ax=-40, 
-            ay=-40,
-            font=dict(
-                size=14,  # Increase font size as needed
-                color="black",  # You can specify font color if needed
-                family="Arial, sans-serif"  # Specify font family if desired
-            )
-        )
 
 
-        # Add markers for post-intervention milestones with a dummy trace for legend
-        added_post_intervention_legend = False
-        post_intervention_dates = []
-        for index, row in post_intervention_milestones.iterrows():
-            milestone_date = row['Date']
-            if row['Public Health Agency Vax News'] != 'N/A' or row['Public Media Vax News Articles'] != 'N/A':
-                # Only plot if within the filtered date range
-                if start_date <= milestone_date <= end_date:
-                    post_intervention_dates.append(milestone_date)
-                    if not added_post_intervention_legend:  # Add legend entry once
-                        fig.add_trace(go.Scatter(x=[milestone_date], y=[filtered_data[selected_data_type].max()], mode="lines", name="Post-intervention Milestone",
-                                                line=dict(color="limegreen", width=1, dash="dot")))
-                        added_post_intervention_legend = True
+                        # Assuming 'data' and 'post_intervention_milestones' are already loaded
+                        # 'selected_data_type', 'selected_event', and 'event_date' are set based on user selection
+                        if 'event_date' in locals() or 'event_date' in globals():
+                            start_date = event_date - pd.Timedelta(days=15)
+                            end_date = event_date + pd.Timedelta(days=15)
+                            filtered_data = data[(data['Date'] >= start_date) & (data['Date'] <= end_date)]
 
-        # Add the post-intervention vertical lines outside the loop
-        for date in post_intervention_dates:
-            fig.add_vline(x=date, line_width=1, line_dash="dot", line_color="limegreen")
+                            if filtered_data.empty:
+                                st.write("No data available for the selected period.")
+                            else:
+                                    # Create the plot
+                                y_range = [filtered_data[selected_data_type].min(), filtered_data[selected_data_type].max()]
 
-        # Set plot layout
-        fig.update_layout(
-            title=f'Trend for {selected_data_type} Sentiments Around the Milestone',
-            xaxis_title='Date',
-            yaxis_title='Count',
-            legend_title='Legend',
-            xaxis=dict(showgrid=False),
-            yaxis=dict(showgrid=True, gridwidth=1, gridcolor='rgba(211,211,211,0.5)'),  # Lighter grid lines with lower alpha
-            plot_bgcolor='rgba(0,0,0,0)'
-        )
-        st.write("")
-        st.header("📈 Sentiment Trend Plot Around Milestone")
-        # Show plot in Streamlit
-        st.plotly_chart(fig, use_container_width=True)
+                                    # Create the plot
+                                fig = px.line(filtered_data, x='Date', y=selected_data_type, title=f'Trend for {selected_data_type} Sentiments Around the Milestone',
+                                                labels={selected_data_type: 'Value', 'Date': 'Date'}, markers=True)
 
-        st.header('Causal Impact Analysis Report')
-        st.write('📈 Causal Impact Analysis Report:')
+                                    # Add a vertical line for the selected event with a dummy trace for the legend
+                                fig.add_trace(go.Scatter(x=[event_date, event_date], y=y_range, mode="lines", name="Selected Milestone",
+                                                            line=dict(color="red", width=2, dash="dash")))
 
-        if error_message:
-            st.error(f"Error: {error_message}")
-        else:
+                                    # Add an annotation for the selected event
+                            # Add an annotation for the selected event with increased font size and italicized text
+                                fig.add_annotation(
+                                    x=event_date, 
+                                    y=filtered_data[filtered_data['Date'] == event_date][selected_data_type].max(),
+                                    text=f"<i>{selected_event}</i>",  # Italicize text with <i> HTML tag
+                                    showarrow=True, 
+                                    arrowhead=5,
+                                    arrowsize=2,
+                                    ax=-40, 
+                                    ay=-40,
+                                    font=dict(
+                                        size=14,  # Increase font size as needed
+                                        color="black",  # You can specify font color if needed
+                                        family="Arial, sans-serif"  # Specify font family if desired
+                                    )
+                                )
 
-            st.text(summary_str)
-            st.text(ci.summary(output='report'))
 
+                                # Add markers for post-intervention milestones with a dummy trace for legend
+                                added_post_intervention_legend = False
+                                post_intervention_dates = []
+                                for index, row in post_intervention_milestones.iterrows():
+                                    milestone_date = row['Date']
+                                    if row['Public Health Agency Vax News'] != 'N/A' or row['Public Media Vax News Articles'] != 'N/A':
+                                        # Only plot if within the filtered date range
+                                        if start_date <= milestone_date <= end_date:
+                                            post_intervention_dates.append(milestone_date)
+                                            if not added_post_intervention_legend:  # Add legend entry once
+                                                fig.add_trace(go.Scatter(x=[milestone_date], y=[filtered_data[selected_data_type].max()], mode="lines", name="Post-intervention Milestone",
+                                                                        line=dict(color="limegreen", width=1, dash="dot")))
+                                                added_post_intervention_legend = True
+
+                                # Add the post-intervention vertical lines outside the loop
+                                for date in post_intervention_dates:
+                                    fig.add_vline(x=date, line_width=1, line_dash="dot", line_color="limegreen")
+
+                                # Set plot layout
+                                fig.update_layout(
+                                    title=f'Trend for {selected_data_type} Sentiments Around the Milestone',
+                                    xaxis_title='Date',
+                                    yaxis_title='Count',
+                                    legend_title='Legend',
+                                    xaxis=dict(showgrid=False),
+                                    yaxis=dict(showgrid=True, gridwidth=1, gridcolor='rgba(211,211,211,0.5)'),  # Lighter grid lines with lower alpha
+                                    plot_bgcolor='rgba(0,0,0,0)'
+                                )
+                                st.write("")
+                                st.header("📈 Sentiment Trend Plot Around Milestone")
+                                # Show plot in Streamlit
+                                st.plotly_chart(fig, use_container_width=True)
+
+                                st.header('Causal Impact Analysis Report')
+                                st.write('📈 Causal Impact Detailed Analysis Report:')
+
+                                if error_message:
+                                    st.error(f"Error: {error_message}")
+                                else:
+
+                                    st.text(summary_str)
+                                    st.text(ci.summary(output='report'))
 
 
 ################################################################
