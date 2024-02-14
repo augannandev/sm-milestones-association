@@ -321,7 +321,7 @@ else:
         earliest_date = data['Date'].min()
         latest_date = data['Date'].max()
 
-       if event_date - pd.Timedelta(days=pre_days) < earliest_date:
+        if event_date - pd.Timedelta(days=pre_days) < earliest_date:
             st.error("⚠️ Not enough pre-event data available for the selected event date. Please select a different event or reduce the number of pre-event days.")
         elif event_date + pd.Timedelta(days=post_days) > latest_date:
             st.error("⚠️ Not enough post-event data available for the selected event date. Please select a different event or reduce the number of post-event days.")
