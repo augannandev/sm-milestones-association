@@ -114,7 +114,7 @@ def perform_causal_impact_analysis(data, event_date_str, pre_days, post_days, se
         return ci, post_intervention_milestones, None
        # return ci, None
     except Exception as e:
-        st.error(f"Error during CausalImpact analysis: {str(e)}")
+       # st.error(f"Error during CausalImpact analysis: {str(e)}")
         return None, empty_milestones_df, str(e)
 
     # Perform the CausalImpact analysis
