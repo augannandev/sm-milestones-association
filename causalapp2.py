@@ -70,7 +70,7 @@ def perform_causal_impact_analysis(data, event_date_str, pre_days, post_days, se
         'mmr_Negative': 'mean',
         'mmr_Count': 'mean',
     }).reset_index()
-    st.write("Aggregated Data:", data_agg)
+    #st.write("Aggregated Data:", data_agg)
     # Extract the data for the analysis period
     analysis_period_data = data_agg[
         (data_agg['Date'] >= pre_period_start) & 
@@ -85,7 +85,7 @@ def perform_causal_impact_analysis(data, event_date_str, pre_days, post_days, se
     # Prepare the data for CausalImpact
     analysis_data = analysis_period_data[selected_data_type].to_frame('y')
 
-    st.write("Analysis Data for CausalImpact:", analysis_data)
+    #st.write("Analysis Data for CausalImpact:", analysis_data)
 
     # Define the pre and post intervention periods for CausalImpact
     pre_period = [str(pre_period_start.date()), str((event_date - pd.Timedelta(days=1)).date())]
