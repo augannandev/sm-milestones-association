@@ -12,8 +12,17 @@ warnings.filterwarnings('ignore')
 st.set_page_config(layout="wide")
 
 # Load the data
-data = pd.read_csv('Data/final_merged_dataset1.csv')
-data['Date'] = pd.to_datetime(data['Date'])
+# data = pd.read_csv('Data/final_merged_dataset1.csv')
+# data['Date'] = pd.to_datetime(data['Date'])
+
+@st.cache
+def load_data():
+    data = pd.read_csv('Data/final_merged_dataset1.csv')
+    data['Date'] = pd.to_datetime(data['Date'])
+    return data
+
+data = load_data()
+
 
 # Function to get unique non-zero values from a column
 def get_unique_nonzero(data, column):
@@ -24,7 +33,7 @@ def get_unique_pov(data, column):
     unique_vals = set(val.strip().lower() for val in data[column].dropna().unique() if val.strip().lower() != '0')
     return list(unique_vals)
 
-
+@st.cache(allow_output_mutation=True)
 def perform_causal_impact_analysis(data, event_date_str, pre_days, post_days, selected_data_type):
     """
     Perform a Causal Impact analysis on provided data.
@@ -312,20 +321,21 @@ else:
         earliest_date = data['Date'].min()
         latest_date = data['Date'].max()
 
-        if event_date - pd.Timedelta(days=pre_days) < earliest_date:
-            st.error("⚠️ Not enough pre-event data available for the selected event date. Please select a different event or reduce the number of pre-event days.")
-        elif event_date + pd.Timedelta(days=post_days) > latest_date:
-            st.error("⚠️ Not enough post-event data available for the selected event date. Please select a different event or reduce the number of post-event days.")
-        else:
-            st.write(f"Performing analysis for event on {event_date}, with {pre_days} pre days and {post_days} post days")
-
-        ci, post_intervention_milestones, error_message = perform_causal_impact_analysis(data, event_date.strftime('%Y-%m-%d'), pre_days, post_days, selected_data_type)
-
-        if error_message:
-            st.error(f"Error: {error_message}")
-        else:
-            # Proceed with displaying the analysis results
-            st.success("✅ Analysis Completed Successfully")
+        if st.button('Run Causal Impact Analysis'):
+            with st.spinner('Performing causal impact analysis... Please wait'):
+                # Your existing validation checks
+                if event_date - pd.Timedelta(days=pre_days) < earliest_date:
+                    st.error("⚠️ Not enough pre-event data available for the selected event date. Please select a different event or reduce the number of pre-event days.")
+                elif event_date + pd.Timedelta(days=post_days) > latest_date:
+                    st.error("⚠️ Not enough post-event data available for the selected event date. Please select a different event or reduce the number of post-event days.")
+                else:
+                    ci, post_intervention_milestones, error_message = perform_causal_impact_analysis(data, event_date.strftime('%Y-%m-%d'), pre_days, post_days, selected_data_type)
+        
+                    if error_message:
+                        st.error(f"Error: {error_message}")
+                    else:
+                        # Proceed with displaying the analysis results
+                        st.success("✅ Analysis Completed Successfully")
             
 
             st.header("📊🔍 Analysis Results")
