@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 st.set_page_config(layout="wide")
 
 # Load the data
-data = pd.read_csv('Data/final_merged_dataset.csv')
+data = pd.read_csv('Data/final_merged_dataset1.csv')
 data['Date'] = pd.to_datetime(data['Date'])
 
 # Function to get unique non-zero values from a column
